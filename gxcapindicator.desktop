@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=GXCapIndicator
+Comment=Show cap key status on tray
+Exec=keyboard-caps-disabled
+Icon=ktimetracker
+Terminal=false
+Type=Application
+Categories=GTK;Utility;
+X-AppStream-Ignore=true
