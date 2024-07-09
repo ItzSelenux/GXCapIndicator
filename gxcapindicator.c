@@ -21,12 +21,12 @@ int main(int argc, char *argv[])
 	gtk_init(&argc, &argv);
 
 		// Cap Tray Icon
-		indicator = app_indicator_new("example-app-indicator", "gxcapindicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+		indicator = app_indicator_new("gxcapindicator-capslock", "GXCapIndicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 		if (showcap)
 		{
 			app_indicator_set_status(indicator, APP_INDICATOR_STATUS_ACTIVE);
 		}
-		app_indicator_set_icon_full(indicator, "image-loading-symbolic", "Indicator Icon");
+		app_indicator_set_icon_full(indicator, "image-loading-symbolic", "Caps Lock");
 
 		traymenu = gtk_menu_new();
 		traymenu_item1 = gtk_menu_item_new_with_label("Toggle Caps Lock");
@@ -42,13 +42,13 @@ int main(int argc, char *argv[])
 
 
 		// Num Tray Icon
-		indicator2 = app_indicator_new("example-indicator2","indicator-messages",APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+		indicator2 = app_indicator_new("gxcapindicator-numlock","GXCapIndicator",APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 		if (shownum)
 		{
 			app_indicator_set_status(indicator2, APP_INDICATOR_STATUS_ACTIVE);
 		}
 		app_indicator_set_label(indicator2, "Indicator 2", NULL);
-		app_indicator_set_icon_full(indicator2, "image-loading-symbolic", "Indicator Icon");
+		app_indicator_set_icon_full(indicator2, "image-loading-symbolic", "Num Lock");
 
 		traymenu2 = gtk_menu_new();
 		traymenu_item11 = gtk_menu_item_new_with_label("Toggle Num Lock");

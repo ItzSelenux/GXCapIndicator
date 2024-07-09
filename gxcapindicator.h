@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-#include <libappindicator/app-indicator.h>
+#include <libayatana-appindicator/app-indicator.h>
 #include <X11/XKBlib.h>
 #include <X11/Xlib.h>
 
@@ -65,11 +65,11 @@ void* check_caps_lock(void* arg)
 		n = (xkbState.locked_mods & LockMask) ? 1 : 0;
 		if (n)
 		{
-			app_indicator_set_icon_full(indicator, "keyboard-caps-enabled", "Indicator Icon");
+			app_indicator_set_icon_full(indicator, "keyboard-caps-enabled", "Caps Lock: Disabled");
 		}
 		else
 		{
-			app_indicator_set_icon_full(indicator, "keyboard-caps-disabled", "Indicator Icon");
+			app_indicator_set_icon_full(indicator, "keyboard-caps-disabled", "Caps Lock: Enabled");
 		}
 		sleep(updrate);
 	}
@@ -118,11 +118,11 @@ void* check_num_lock(void* arg)
 
 		if (n)
 		{
-			app_indicator_set_icon_full(indicator2, "keyboard-num-enabled", "Indicator 2");
+			app_indicator_set_icon_full(indicator2, "keyboard-num-enabled", "Num Lock: Enabled");
 		}
 		else
 		{
-			app_indicator_set_icon_full(indicator2, "keyboard-num-disabled", "Indicator 2");
+			app_indicator_set_icon_full(indicator2, "keyboard-num-disabled", "Num Lock: Disabled");
 		}
 		sleep(updrate);
 	}
@@ -134,6 +134,15 @@ void on_about(GtkMenuItem *menuitem, gpointer userdata)
 {
 	dialog = gtk_about_dialog_new();
 	gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+		theme = gtk_icon_theme_get_default();
+		info = gtk_icon_theme_lookup_icon(theme, "keyboard-caps-enabled", 48, 0);
+		if (info != NULL)
+		{
+			icon = gtk_icon_info_load_icon(info, NULL);
+			gtk_window_set_icon(GTK_WINDOW(dialog), icon);
+			g_object_unref(icon);
+			g_object_unref(info);
+		}
 	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "GXCapIndicator");
 	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2024 ItzSelenux");
 	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "Simple Cap/Num lock indicator for X11 Tray");
@@ -142,6 +151,7 @@ void on_about(GtkMenuItem *menuitem, gpointer userdata)
 	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
 	gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_GPL_3_0);
 	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"keyboard-caps-enabled");
+
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }

@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk+-3.0 appindicator3-0.1` -Wall -lpthread -lX11
-LIBS = `pkg-config --libs gtk+-3.0 appindicator3-0.1` -Wall -lpthread -lX11
+CFLAGS = `pkg-config --cflags gtk+-3.0 ayatana-appindicator3-0.1` -Wall -lpthread -lX11
+LIBS = `pkg-config --libs gtk+-3.0 ayatana-appindicator3-0.1` -Wall -lpthread -lX11
 
 SRC = gxcapindicator.c
 OBJ = $(SRC:.c=.o)

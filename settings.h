@@ -158,7 +158,17 @@ void on_preferences(GtkWidget *button, gpointer data)
 	gtk_init(NULL, NULL);
 		dialog = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 		gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
-		gtk_window_set_title(GTK_WINDOW(dialog), "GXCapIndicator");
+		gtk_window_set_title(GTK_WINDOW(dialog), "GXCapIndicator Settings");
+
+		theme = gtk_icon_theme_get_default();
+		info = gtk_icon_theme_lookup_icon(theme, "keyboard-caps-enabled", 48, 0);
+		if (info != NULL)
+		{
+			icon = gtk_icon_info_load_icon(info, NULL);
+			gtk_window_set_icon(GTK_WINDOW(dialog), icon);
+			g_object_unref(icon);
+			g_object_unref(info);
+		}
 		g_signal_connect(dialog, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 		gtk_container_set_border_width(GTK_CONTAINER(dialog), 5);
 
