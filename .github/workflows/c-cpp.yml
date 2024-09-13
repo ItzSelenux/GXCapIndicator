@@ -1,0 +1,57 @@
+name: Continous CI
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up variables
+      id: date
+      run: |
+       echo "GH_RELEASE_FILE=gxcapindicator-$(cat VERSION)-$(ldd --version | awk '/ldd/{print "-gnu-" $NF}')" >> $GITHUB_ENV
+       echo "GH_RELEASE_VERSION=$(cat VERSION)" >> $GITHUB_ENV
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libgtk-3-dev \
+          libayatana-appindicator3-dev \
+          pkg-config \
+          clang
+
+    - name: Build with GCC
+      run: |
+        make CC=gcc 
+        strip gxcapindicator
+        mv gxcapindicator ${{ env.GH_RELEASE_FILE }}
+
+    - name: Build with Clang
+      run: |
+        make CC=clang
+      continue-on-error: true
+        
+    - name: Build with -Werror
+      run: |
+        make CFLAGS=-Werror
+      continue-on-error: true
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: Release ci-${{ env.GH_RELEASE_VERSION}}
+        body: ${{ github.event.head_commit.message }}
+        tag_name: ${{ env.GH_RELEASE_VERSION }}
+        files: |
+            ${{ env.GH_RELEASE_FILE }}

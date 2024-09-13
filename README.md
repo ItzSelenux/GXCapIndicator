@@ -1,4 +1,8 @@
 # gxcapindicator
+
+<img src="https://raw.githubusercontent.com/ItzSelenux/ItzSelenux.github.io/main/res/projects/gxcapindicator.svg" alt="Description of Image" width="111px" />
+
+
 Simple Cap/Num lock key indicator for x11 tray
 
 ## Features:
