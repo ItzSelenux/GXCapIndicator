@@ -1,51 +1,126 @@
+#ifndef WITHX11
+// Event printing functions
+static int print_key_event(struct libinput_event *event)
+{
+	struct libinput_event_keyboard *keyboard = libinput_event_get_keyboard_event(event);
+
+	guint32 key_code = libinput_event_keyboard_get_key(keyboard);
+	enum libinput_key_state state_code = libinput_event_keyboard_get_key_state(keyboard);
+
+	const guint32 KEY_CAPSLOCK_CODE = KEY_CAPSLOCK;
+	const guint32 KEY_NUMLOCK_CODE = KEY_NUMLOCK;
+
+	if (showcap && key_code == KEY_CAPSLOCK_CODE && state_code == LIBINPUT_KEY_STATE_RELEASED)
+	{
+		capstate ^= 1;
+		const gchar *icon_name = capstate ? "keyboard-caps-enabled" : "keyboard-caps-disabled";
+		const gchar *status_message = capstate ? "Caps Lock: Enabled" : "Caps Lock: Disabled";
+		app_indicator_set_icon_full(capindicator, icon_name, status_message);
+		app_indicator_set_title(capindicator, status_message);
+	}
+	else if (shownum && key_code == KEY_NUMLOCK_CODE && state_code == LIBINPUT_KEY_STATE_RELEASED)
+	{
+		numstate ^=1;
+		const gchar *icon_name = numstate ? "keyboard-num-enabled" : "keyboard-num-disabled";
+		const gchar *status_message = numstate ? "Num Lock: Enabled" : "Num Lock: Disabled";
+		app_indicator_set_icon_full(numindicator, icon_name, status_message);
+		app_indicator_set_title(numindicator, status_message);
+	}
+	return 0;
+}
+
+
+static int handle_events(struct libinput *libinput)
+{
+	struct libinput_event *event;
+
+	if (libinput_dispatch(libinput) < 0)
+		return -1;
+
+	while ((event = libinput_get_event(libinput)) != NULL)
+	{
+		switch (libinput_event_get_type(event))
+		{
+			case LIBINPUT_EVENT_KEYBOARD_KEY:
+				print_key_event(event);
+				break;
+			default:
+				break;
+		}
+		libinput_event_destroy(event);
+	}
+	return 0;
+}
+
+static int run_mainloop(struct libinput *libinput)
+{
+	struct pollfd fd;
+	fd.fd = libinput_get_fd(libinput);
+	fd.events = POLLIN;
+
+	while (poll(&fd, 1, -1) > -1)
+		handle_events(libinput);
+	return 0;
+}
+#endif
+
 void *toggle_cap()
 {
+	#ifdef WITHX11
 	XkbGetIndicatorState(d, XkbUseCoreKbd, &capstate);
 	int capsLock = (capstate & 0x01) != 0;
 	XkbLockModifiers(d, XkbUseCoreKbd, LockMask, capsLock ? 0 : LockMask);
+	#else
+	g_warning("not, implemented");
+	#endif
 	return NULL;
 }
 
 void *check_cap()
 {
-	unsigned n;
-	XkbStateRec xkbState;
-
-	while (1)
-	{
-		XkbGetState(d, XkbUseCoreKbd, &xkbState);
-		n = (xkbState.locked_mods & LockMask) ? 1 : 0;
-		const char *icon_name = n ? "keyboard-caps-enabled" : "keyboard-caps-disabled";
-		const char *status_message = n ? "Caps Lock: Enabled" : "Caps Lock: Disabled";
-		app_indicator_set_icon_full(capindicator, icon_name, status_message);
-		app_indicator_set_title(capindicator, status_message);
-		sleep(updrate);
-	}
+	#ifdef WITHX11
+		XkbStateRec xkbState;
+		while (1)
+		{
+			XkbGetState(d, XkbUseCoreKbd, &xkbState);
+			capstate = (xkbState.locked_mods & LockMask) ? 1 : 0;
+			const gchar *icon_name = capstate ? "keyboard-caps-enabled" : "keyboard-caps-disabled";
+			const gchar *status_message = capstate ? "Caps Lock: Enabled" : "Caps Lock: Disabled";
+			app_indicator_set_icon_full(capindicator, icon_name, status_message);
+			app_indicator_set_title(capindicator, status_message);
+			sleep(updrate);
+		}
+	#else
+		run_mainloop(libinput);
+	#endif
 	return NULL;
 }
 
 void *toggle_num()
 {
+	#ifdef WITHX11
 	XkbGetIndicatorState(d, XkbUseCoreKbd, &numstate);
 	int numLock = (numstate & 0x02) != 0;
 	XkbLockModifiers(d, XkbUseCoreKbd, Mod2Mask, numLock ? 0 : Mod2Mask);
+	#else
+	g_warning("not, implemented");
+	#endif
 	return NULL;
 }
 
 void *check_num(void *arg)
 {
-	unsigned int n;
-	XkbStateRec xkbState;
-
+#ifdef WITHX11
 	while (1)
 	{
-		XkbGetState(d, XkbUseCoreKbd, &xkbState);
-		n = (xkbState.locked_mods & Mod2Mask) ? 1 : 0;
-		const char *icon_name = n ? "keyboard-num-enabled" : "keyboard-num-disabled";
-		const char *status_message = n ? "Num Lock: Enabled" : "Num Lock: Disabled";
+		XkbGetState(d, XkbUseCoreKbd, &xkbnumstate);
+		numstate = (xkbnumstate.locked_mods & Mod2Mask) ? 1 : 0;
+		const gchar *icon_name = numstate ? "keyboard-num-enabled" : "keyboard-num-disabled";
+		const gchar *status_message = numstate ? "Num Lock: Enabled" : "Num Lock: Disabled";
 		app_indicator_set_icon_full(numindicator, icon_name, status_message);
 		app_indicator_set_title(numindicator, status_message);
 		sleep(updrate);
 	}
+#endif
 	return NULL;
 }

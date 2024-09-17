@@ -1,6 +1,15 @@
+WITHX11 ?= 0
+
+ifeq ($(WITHX11), 0)
+	XLIB = -ludev -linput -levdev -I/usr/include/libevdev-1.0/
+else
+	XLIB = -lX11
+	FLAGS +=-DWITHX11
+endif
+
 CC = cc
-CFLAGS = `pkg-config --cflags gtk+-3.0 ayatana-appindicator3-0.1` -Wall
-LIBS = `pkg-config --libs gtk+-3.0 ayatana-appindicator3-0.1` -lpthread -lX11
+CFLAGS = `pkg-config --cflags gtk+-3.0 ayatana-appindicator3-0.1` $(FLAGS) $(XLIB)
+LIBS = `pkg-config --libs gtk+-3.0 ayatana-appindicator3-0.1` -lpthread $(FLAGS) $(XLIB)
 
 SRC = gxcapindicator.c
 OBJ = $(SRC:.c=.o)

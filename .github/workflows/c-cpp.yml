@@ -29,17 +29,25 @@ jobs:
           libgtk-3-dev \
           libayatana-appindicator3-dev \
           pkg-config \
+          libudev-dev \
+          libinput-dev \
+          libevdev-dev \
           clang
 
     - name: Build with GCC
       run: |
-        make CC=gcc 
+        make CC=gcc
         strip gxcapindicator
-        mv gxcapindicator ${{ env.GH_RELEASE_FILE }}
+        mv gxcapindicator ${{ env.GH_RELEASE_FILE }}-Evdev
+        make clean
+        make CC=gcc WITHX11=1
+        strip gxcapindicator
+        mv gxcapindicator ${{ env.GH_RELEASE_FILE }}-X11
 
     - name: Build with Clang
       run: |
         make CC=clang
+        make CC=clang WITHX11=0
       continue-on-error: true
         
     - name: Build with -Werror
@@ -54,4 +62,5 @@ jobs:
         body: ${{ github.event.head_commit.message }}
         tag_name: ${{ env.GH_RELEASE_VERSION }}
         files: |
-            ${{ env.GH_RELEASE_FILE }}
+            ${{ env.GH_RELEASE_FILE }}-Evdev
+            ${{ env.GH_RELEASE_FILE }}-X11

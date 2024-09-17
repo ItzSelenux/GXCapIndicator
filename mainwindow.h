@@ -35,7 +35,9 @@ void create_cap_indicator()
 		capmenu_item_settings = gtk_menu_item_new_with_label("Settings");
 		capmenu_item_about = gtk_menu_item_new_with_label("About");
 		capmenu_item_quit = gtk_menu_item_new_with_label("Quit");
+		#ifdef WITHX11
 		gtk_menu_shell_append(GTK_MENU_SHELL(capmenu), capmenu_item_toggle);
+		#endif
 		if (!nohome)
 			gtk_menu_shell_append(GTK_MENU_SHELL(capmenu), capmenu_item_settings);
 		gtk_menu_shell_append(GTK_MENU_SHELL(capmenu), capmenu_item_about);
@@ -45,7 +47,14 @@ void create_cap_indicator()
 	capindicator = app_indicator_new("gxcapindicator-capslock", "GXCapIndicator", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 		app_indicator_set_menu(capindicator, GTK_MENU(capmenu));
 		app_indicator_set_status(capindicator, APP_INDICATOR_STATUS_ACTIVE);
-		app_indicator_set_icon_full(capindicator, "image-loading-symbolic", "Caps Lock");
+		#ifdef WITHX11
+			app_indicator_set_icon_full(capindicator, "image-loading-symbolic", "Caps Lock");
+		#else
+			const gchar *icon_name = vcapstate ? "keyboard-caps-enabled" : "keyboard-caps-disabled";
+			const gchar *status_message = vcapstate ? "Caps Lock: Enabled" : "Caps Lock: Disabled";
+			app_indicator_set_icon_full(capindicator, icon_name, status_message);
+			app_indicator_set_title(capindicator, status_message);
+		#endif
 
 	g_signal_connect(G_OBJECT(capmenu_item_toggle), "activate", G_CALLBACK(toggle_cap), NULL);
 	g_signal_connect(G_OBJECT(capmenu_item_settings), "activate", G_CALLBACK(on_preferences), NULL);
@@ -68,7 +77,9 @@ void create_num_indicator()
 		nummenu_item_settings = gtk_menu_item_new_with_label("Settings");
 		nummenu_item_about = gtk_menu_item_new_with_label("About");
 		nummenu_item_quit = gtk_menu_item_new_with_label("Quit");
-		gtk_menu_shell_append(GTK_MENU_SHELL(nummenu), nummenu_item_toggle);
+		#ifdef WITHX11
+			gtk_menu_shell_append(GTK_MENU_SHELL(nummenu), nummenu_item_toggle);
+		#endif
 		if (!nohome)
 			gtk_menu_shell_append(GTK_MENU_SHELL(nummenu), nummenu_item_settings);
 		gtk_menu_shell_append(GTK_MENU_SHELL(nummenu), nummenu_item_about);
@@ -77,8 +88,14 @@ void create_num_indicator()
 	numindicator = app_indicator_new("gxcapindicator-numlock","GXCapIndicator",APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
 		app_indicator_set_menu(numindicator, GTK_MENU(nummenu));
 		app_indicator_set_status(numindicator, APP_INDICATOR_STATUS_ACTIVE);
-		app_indicator_set_icon_full(numindicator, "image-loading-symbolic", "Num Lock");
-
+		#ifdef WITHX11
+			app_indicator_set_icon_full(numindicator, "image-loading-symbolic", "Num Lock");
+		#else
+			const gchar *icon_name = vnumstate ? "keyboard-num-enabled" : "keyboard-num-disabled";
+			const gchar *status_message = vnumstate ? "Num Lock: Enabled" : "Num Lock: Disabled";
+			app_indicator_set_icon_full(numindicator, icon_name, status_message);
+			app_indicator_set_title(numindicator, status_message);
+		#endif
 	g_signal_connect(G_OBJECT(nummenu_item_toggle), "activate", G_CALLBACK(toggle_num), NULL);
 	g_signal_connect(G_OBJECT(nummenu_item_settings), "activate", G_CALLBACK(on_preferences), NULL);
 	g_signal_connect(G_OBJECT(nummenu_item_about), "activate", G_CALLBACK(on_about), NULL);
@@ -92,9 +109,11 @@ void create_num_indicator()
 
 void create_window()
 {
+	#ifdef WITHX11
 	d = XOpenDisplay(NULL);
 	if (d == NULL)
 		g_error("can't open display");
+	#endif
 
 	if (showcap)
 		create_cap_indicator();
@@ -111,9 +130,11 @@ void create_window()
 		pthread_join(cap_threadid, NULL);
 	}
 
+	#ifdef WITHX11
 	if (shownum)
 	{
 		pthread_cancel(num_threadid);
 		pthread_join(num_threadid, NULL);
 	}
+	#endif
 }

@@ -45,6 +45,10 @@ void readconf()
 				shownum = atoi(value_str);
 			else if (strcmp(name, "updrate") == 0)
 				updrate = atoi(value_str);
+			else if (strcmp(name, "vcapstate") == 0)
+				vcapstate = atoi(value_str);
+			else if (strcmp(name, "vnumstate") == 0)
+				vnumstate = atoi(value_str);
 		}
 	}
 	fclose(file);
@@ -76,6 +80,8 @@ void saveconfig()
 	const gchar *cshowcap = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowcap)) ? "1" : "0";
 	const gchar *cshownum = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshownum)) ? "1" : "0";
 	const gchar *cupdrate = gtk_entry_get_text(GTK_ENTRY(gupdrate));
+	const gchar *cvcapstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gcapstate)) ? "1" : "0";
+	const gchar *cvnumstate = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gnumstate)) ? "1" : "0";
 
 	if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshowcap)) && !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gshownum)))
 	{
@@ -121,6 +127,8 @@ void saveconfig()
 		fprintf(output, "[GXCapIndicator Configuration File]\n");
 		fprintf(output, "showcap=%s\n", cshowcap);
 		fprintf(output, "shownum=%s\n", cshownum);
+		fprintf(output, "vcapstate=%s\n", cvcapstate);
+		fprintf(output, "vnumstate=%s\n", cvnumstate);
 		fprintf(output, "updrate=%s\n", strlen(cupdrate) > 0 ? cupdrate : "1");
 		fclose(output);
 	}
