@@ -18,13 +18,13 @@ To build GXCapIndicator, choose the backend you want to use:
 
 ### With Evdev Backend
 
-```sh
+```ini
 make
 ```
 
 ### With X11 Backend
 
-```sh
+```ini
 make WITHX11=1
 ```
 
@@ -34,14 +34,16 @@ GXCapIndicator supports two backends for fetching key status: X11 and Evdev. Eac
 
 ### X11 Backend
 - Uses `XkbGetState` to fetch the key status.
+- Checks cannot be done in real time without generating high CPU usage.
 - Some options are not available:
   - **Initial Visual State**: Cannot set the initial visual state of Caps Lock/Num Lock (unnecessary with XkbGetState).
   
 ### Evdev Backend
 - Uses `libinput_event_get_keyboard_event` to fetch the key status.
+- Checks can be real time without high CPU Usage
 - Some options are not available:
-  - **Update Rate**: Polling rate is fixed and cannot be adjusted.
-  - **Toggle Functionality**: Can't be implemented without root access.
+  - **Update Rate**: Cannot change update rate because polling intercepts events (and is not really necessary because there is no CPU usage penalty).
+  - **Toggle**: Can't be implemented without root access.
 
 ## Configuration
 
